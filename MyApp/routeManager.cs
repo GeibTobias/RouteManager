@@ -1,5 +1,4 @@
 using System;
-using System.Reflection.Metadata;
 
 namespace Program
 {
@@ -79,7 +78,6 @@ namespace Program
         }
             
         private static List<Stage> getStagesForMaxStep(List<int> distances, int stepSize, int numberOfStages) {
-            Console.WriteLine("Current Step size: " + stepSize.ToString());
             Stage currentStage = new Stage{};
             List<Stage>result = new List<Stage>{};
             for (int i = 0; i < distances.Count; i++) {
