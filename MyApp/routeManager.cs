@@ -132,6 +132,9 @@ namespace Program
                 int result = manyInts[0];
                 for (int i = 0; i < manyInts.Count; i++) {
                     result = greatesCommonDivider(result, manyInts[i]);
+                    if (result == 1) {
+                        return result;
+                    }
                 }
                 return result;
             } else {
