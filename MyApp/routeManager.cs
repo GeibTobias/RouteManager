@@ -64,18 +64,47 @@ namespace Program
 
         private static List<Stage> getStageSegmentations(UserInput userInput) {
             int minStartStep = userInput.steps.Max();
-            int minIncrementStep = manyIntegerGCD(userInput.steps);
-            int currentIncrement = 0;
+            int maxWindow = userInput.steps.Sum();
+            int meanStepSize = maxWindow / userInput.numberOfSteps;
+            int currentWindow = minStartStep > meanStepSize ? minStartStep : meanStepSize;
 
-            List<Stage> result = getStagesForMaxStep(userInput.steps, minStartStep, userInput.numberOfStages);
+            List<Stage> result = getStagesForMaxStep(userInput.steps, currentWindow, userInput.numberOfStages);
 
-            while (result.Count > userInput.numberOfStages) {
-                currentIncrement += minIncrementStep;
-                result = getStagesForMaxStep(userInput.steps, minStartStep + currentIncrement, userInput.numberOfStages);
+            while (true){
+                if (checkResultFinished(result, currentWindow, maxWindow, userInput)) {
+                    break;
+                }
+                // Increase Window Size
+                while (result.Count > userInput.numberOfStages ) {
+                    result = getStagesForMaxStep(userInput.steps, currentWindow, userInput.numberOfStages);
+                    currentWindow = meanOfTwoSteps(currentWindow, maxWindow);
+                }
+                if (checkResultFinished(result, currentWindow, maxWindow, userInput)) {
+                    break;
+                }
+                // Decrease window size
+                maxWindow = currentWindow;
+                currentWindow = meanOfTwoSteps(minStartStep, currentWindow);
+                result = getStagesForMaxStep(userInput.steps, currentWindow, userInput.numberOfStages);
             }
-
             return result;
         }
+
+        private static bool checkResultFinished(List<Stage> result, int currentWindow, int maxWindow, UserInput userInput) {
+            bool isFinished = currentWindow == maxWindow;
+            if (!isFinished && result.Count == userInput.numberOfStages) {
+                List<Stage> windowOneSmaller = getStagesForMaxStep(userInput.steps, currentWindow-1, userInput.numberOfStages);
+                if (windowOneSmaller.Count > userInput.numberOfStages) {
+                    isFinished = true;
+                }
+            }
+            return isFinished;
+        }
+
+        private static int meanOfTwoSteps(int a, int b) {
+            int result = (a + b) / 2;
+            return result;
+        } 
             
         private static List<Stage> getStagesForMaxStep(List<int> distances, int stepSize, int numberOfStages) {
             Stage currentStage = new Stage{};
@@ -113,33 +142,6 @@ namespace Program
                 sums.Add(stage.Sum());
             }
             return sums.Max();
-        }
-
-        private static int greatesCommonDivider(int a, int b) {
-            while (a != b && a > 1 && b > 1) {
-                if (b > a) {
-                    int temp = a;
-                    a = b;
-                    b = temp;
-                }
-                a -= b;
-            }
-            return a;
-        }
-
-        private static int manyIntegerGCD(List<int> manyInts) {
-            if (manyInts.Count != 0) {
-                int result = manyInts[0];
-                for (int i = 0; i < manyInts.Count; i++) {
-                    result = greatesCommonDivider(result, manyInts[i]);
-                    if (result == 1) {
-                        return result;
-                    }
-                }
-                return result;
-            } else {
-                return 0;
-            }
         }
     }
 }
